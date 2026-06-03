@@ -1,1 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHADOWS — Blackwood Manor</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&family=UnifrakturMaguntia&display=swap');
 
+:root {
+  --red: #cc0000;
+  --red-glow: #ff0000;
+  --purple: #9933ff;
+  --gold: #ffcc44;
+  --dark: #0a0000;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  background:#000;
+  color:#fff;
+  font-family:'Special Elite', cursive;
+  overflow:hidden;
+  user-select:none;
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cursor {
+  position:fixed; width:18px; height:18px;
+  border:1px solid rgba(255,50,50,0.7);
+  border-radius:50%; pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:9999; transition:transform .1s;
+}
+#cursor::after {
+  content:''; position:absolute;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  width:4px; height:4px; background:#ff3333; border-radius:50%;
+}
+
+/* ── CANVAS ── */
+#gameCanvas { display:block; position:fixed; top:0; left:0; }
+
+/* ── BLOOD OVERLAY ── */
+#bloodOverlay {
+  position:fixed; inset:0; pointer-events:none; z-index:5;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(160,0,0,0.25) 100%);
+  opacity:0; transition:opacity .2s;
+}
+
+/* ── GRAIN ── */
+#grain {
+  position:fixed; inset:0; pointer-events:none; z-index:4; opacity:.04;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:150px 150px;
+  animation:grainShift 0.4s steps(1) infinite;
+}
+@keyframes grainShift { 0%{background-position:0 0} 25%{background-position:60px -40px} 50%{background-position:-30px 70px} 75%{background-position:80px 20px} 100%{background-position:0 0} }
+
+/* ── UI LAYER ── */
+#ui {
+  position:fixed; inset:0; pointer-events:none; z-index:10;
+}
+
+/* HUD TOP */
+#topHud {
+  position:absolute; top:0; left:0; right:0;
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:18px 28px;
+}
+
+.stat-block { display:flex; flex-direction:column; gap:6px; min-width:160px; }
+.stat-label {
+  font-family:'Creepster',cursive; font-size:12px;
+  letter-spacing:4px; color:#555;
+}
+.stat-bar {
+  height:6px; background:#0f0000;
+  border:1px solid #300; border-radius:2px; overflow:hidden;
+}
+.stat-fill { height:100%; border-radius:2px; transition:width .3s ease; }
+
+#vikyFill  { background:linear-gradient(90deg,#cc0000,#ff5533); }
+#maryFill  { background:linear-gradient(90deg,#6600cc,#bb66ff); }
+#sanityFill{ background:linear-gradient(90deg,#006644,#00ffaa); }
+#staminaFill{ background:linear-gradient(90deg,#664400,#ffaa00); }
+
+.char-portrait {
+  display:flex; align-items:center; gap:10px; margin-bottom:4px;
+}
+.portrait-icon {
+  width:32px; height:32px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:16px; font-family:'Creepster',cursive;
+  border:1px solid currentColor;
+}
+#vikyIcon  { color:#ff4444; border-color:#ff444455; background:rgba(200,0,0,0.15); }
+#maryIcon  { color:#bb66ff; border-color:#bb66ff55; background:rgba(100,0,200,0.15); }
+.portrait-name { font-family:'Creepster',cursive; font-size:18px; letter-spacing:3px; text-shadow:0 0 8px currentColor; }
+#vikyName { color:#ff4444; }
+#maryName { color:#bb66ff; }
+
+/* center HUD */
+#centerHud {
+  position:absolute; top:18px; left:50%; transform:translateX(-50%);
+  text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px;
+}
+#levelDisplay {
+  font-family:'UnifrakturMaguntia',cursive;
+  font-size:20px; color:#663300; letter-spacing:3px;
+  text-shadow:0 0 10px #ff330055;
+}
+#scoreDisplay {
+  font-family:'Creepster',cursive; font-size:32px;
+  color:#cc3300; text-shadow:0 0 15px #ff000066; letter-spacing:2px;
+}
+#waveDisplay {
+  font-size:11px; color:#441100; letter-spacing:4px;
+}
+
+/* right HUD */
+#rightHud {
+  display:flex; flex-direction:column; align-items:flex-end; gap:8px;
+}
+#weaponDisplay {
+  font-family:'Creepster',cursive; font-size:16px;
+  color:#886633; letter-spacing:2px; text-align:right;
+}
+#ammoDisplay {
+  font-size:12px; color:#443322; letter-spacing:3px; text-align:right;
+}
+#inventoryBar {
+  display:flex; gap:6px; justify-content:flex-end; margin-top:4px;
+}
+.inv-slot {
+  width:28px; height:28px; border:1px solid #331100;
+  background:rgba(0,0,0,0.5); border-radius:2px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px;
+}
+.inv-slot.has-item { border-color:#664400; background:rgba(80,30,0,0.4); }
+
+/* BOTTOM HUD */
+#bottomHud {
+  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+}
+#dialogueBox {
+  background:rgba(0,0,0,0.85);
+  border:1px solid #330000;
+  padding:10px 20px; max-width:500px; text-align:center;
+  font-size:13px; color:#cc8866; line-height:1.7; letter-spacing:1px;
+  display:none; position:relative;
+}
+#dialogueName {
+  font-family:'Creepster',cursive; font-size:16px;
+  position:absolute; top:-12px; left:16px;
+  background:#000; padding:0 8px; letter-spacing:2px;
+}
+
+#controls {
+  font-size:10px; color:#2a2a2a; letter-spacing:2px;
+  line-height:1.9; text-align:center;
+}
+
+/* OBJECTIVE */
+#objective {
+  position:absolute; top:110px; left:28px;
+  font-size:11px; color:#332200; letter-spacing:2px; line-height:2;
+}
+#objectiveTitle {
+  font-family:'Creepster',cursive; font-size:14px;
+  color:#553300; margin-bottom:4px; letter-spacing:3px;
+}
+.obj-item { display:flex; align-items:center; gap:6px; }
+.obj-item.done { text-decoration:line-through; color:#221100; }
+.obj-dot { width:5px; height:5px; border-radius:50%; background:#553300; }
+.obj-dot.done-dot { background:#225500; }
+
+/* MESSAGES */
+#message {
+  position:absolute; top:42%; left:50%; transform:translateX(-50%);
+  font-family:'Creepster',cursive; font-size:52px;
+  text-align:center; opacity:0; transition:opacity .5s;
+  pointer-events:none; letter-spacing:4px;
+  text-shadow:0 0 30px currentColor, 0 0 60px currentColor;
+  white-space:nowrap;
+}
+
+/* CROSSHAIR */
+#crosshair {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:20px; height:20px; pointer-events:none;
+}
+#crosshair::before, #crosshair::after {
+  content:''; position:absolute; background:rgba(255,255,255,0.25);
+}
+#crosshair::before { width:1px; height:100%; left:50%; top:0; }
+#crosshair::after  { height:1px; width:100%; top:50%; left:0; }
+
+/* ── START SCREEN ── */
+#startScreen {
+  position:fixed; inset:0; z-index:100; pointer-events:all;
+  background:#000; overflow:hidden;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+
+/* animated bg particles on start */
+#startBg {
+  position:absolute; inset:0; overflow:hidden;
+}
+.fog-strip {
+  position:absolute; height:1px; background:rgba(180,0,0,0.15);
+  animation:fogMove linear infinite;
+}
+@keyframes fogMove { from{left:-100%; opacity:0} 10%{opacity:1} 90%{opacity:1} to{left:100%; opacity:0} }
+
+#startContent {
+  position:relative; z-index:2;
+  display:flex; flex-direction:column; align-items:center;
+  gap:0;
+}
+
+#mainTitle {
+  font-family:'UnifrakturMaguntia',cursive;
+  font-size:clamp(70px,12vw,140px);
+  color:#aa0000;
+  text-shadow:0 0 30px #ff0000, 0 0 80px #660000, 0 2px 0 #330000;
+  letter-spacing:6px;
+  animation:titleFlicker 4s infinite;
+  line-height:1;
+}
+@keyframes titleFlicker {
+  0%,89%,91%,93%,100%{opacity:1; text-shadow:0 0 30px #ff0000,0 0 80px #660000;}
+  90%{opacity:.3; text-shadow:none;}
+  92%{opacity:.8;}
+  94%{opacity:.1;}
+}
+
+#subTitle {
+  font-family:'Special Elite',cursive;
+  font-size:13px; letter-spacing:10px; color:#440000;
+  margin-top:4px; margin-bottom:30px;
+}
+
+/* story reel */
+#storyReel {
+  max-width:480px; text-align:center;
+  font-size:13px; color:#443333; line-height:2; letter-spacing:1px;
+  border-top:1px solid #220000; border-bottom:1px solid #220000;
+  padding:16px 0; margin-bottom:28px;
+}
+
+/* characters */
+.char-row {
+  display:flex; gap:30px; margin-bottom:28px;
+}
+.char-card-start {
+  width:140px; padding:16px 12px; text-align:center;
+  border:1px solid #220000; background:rgba(255,255,255,0.01);
+  position:relative;
+}
+.char-card-start::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(255,0,0,0.03) 0%, transparent 100%);
+}
+.cc-avatar {
+  width:52px; height:52px; border-radius:50%;
+  margin:0 auto 10px; border:1px solid currentColor;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-family:'Creepster',cursive;
+}
+.cc-name {
+  font-family:'Creepster',cursive; font-size:22px;
+  letter-spacing:3px; text-shadow:0 0 10px currentColor;
+}
+.cc-desc { font-size:10px; color:#333; letter-spacing:2px; margin-top:4px; line-height:1.6; }
+#vikyCard .cc-avatar, #vikyCard .cc-name { color:#ff4444; }
+#maryCard .cc-avatar, #maryCard .cc-name { color:#bb66ff; }
+
+/* google oauth */
+#oauthSection {
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  margin-bottom:24px;
+}
+#userGreeting {
+  font-family:'Creepster',cursive; font-size:18px;
+  color:#664433; letter-spacing:3px; display:none;
+}
+#googleSignInWrapper { display:flex; flex-direction:column; align-items:center; gap:8px; }
+#googleSignInWrapper p {
+  font-size:10px; color:#333; letter-spacing:3px;
+}
+#gSignInBtn {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 22px; background:#0f0000;
+  border:1px solid #440000; cursor:pointer;
+  font-family:'Special Elite',cursive; font-size:13px; color:#885544;
+  letter-spacing:2px; transition:all .3s; pointer-events:all;
+}
+#gSignInBtn:hover { border-color:#880000; color:#cc7755; background:#180000; box-shadow:0 0 15px #33000066; }
+#gSignInBtn svg { flex-shrink:0; }
+#skipBtn {
+  font-size:10px; color:#222; letter-spacing:3px; cursor:pointer;
+  background:none; border:none; font-family:'Special Elite',cursive;
+  text-decoration:underline; pointer-events:all;
+}
+#skipBtn:hover { color:#444; }
+
+#startBtn {
+  padding:14px 60px;
+  font-family:'Creepster',cursive; font-size:26px;
+  letter-spacing:6px; color:#fff;
+  background:transparent; border:2px solid #770000;
+  cursor:pointer; transition:all .3s; pointer-events:all;
+  position:relative; overflow:hidden;
+}
+#startBtn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(200,0,0,0.1),transparent);
+  transform:translateX(-100%); transition:transform .4s;
+}
+#startBtn:hover::before { transform:translateX(100%); }
+#startBtn:hover {
+  background:rgba(150,0,0,0.2); border-color:#cc0000;
+  box-shadow:0 0 30px #ff000044, inset 0 0 20px rgba(200,0,0,0.1);
+  text-shadow:0 0 10px #ff4444;
+}
+
+/* ── PAUSE SCREEN ── */
+#pauseScreen {
+  position:fixed; inset:0; z-index:90; pointer-events:none;
+  background:rgba(0,0,0,0.92); display:none;
+  flex-direction:column; align-items:center; justify-content:center; gap:20px;
+}
+#pauseScreen.active { display:flex; pointer-events:all; }
+#pauseTitle {
+  font-family:'Creepster',cursive; font-size:60px;
+  color:#660000; letter-spacing:8px;
+}
+.pause-btn {
+  padding:10px 44px; font-family:'Creepster',cursive; font-size:18px;
+  letter-spacing:4px; color:#884433; background:transparent;
+  border:1px solid #440000; cursor:pointer; transition:all .3s; pointer-events:all;
+}
+.pause-btn:hover { background:rgba(100,0,0,0.2); border-color:#880000; color:#cc6644; }
+
+/* ── GAME OVER ── */
+#gameOver {
+  position:fixed; inset:0; z-index:200; pointer-events:none;
+  background:rgba(0,0,0,0); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  transition:background 1.5s;
+}
+#gameOver.active { pointer-events:all; background:rgba(0,0,0,0.96); }
+#goTitle {
+  font-family:'UnifrakturMaguntia',cursive; font-size:90px;
+  color:#880000; text-shadow:0 0 40px #ff0000;
+  animation:titleFlicker 2s infinite; opacity:0; transition:opacity 1s .5s;
+}
+#gameOver.active #goTitle { opacity:1; }
+#goMsg { color:#442211; font-size:13px; letter-spacing:3px; opacity:0; transition:opacity 1s 1s; }
+#gameOver.active #goMsg { opacity:1; }
+#goScore { font-family:'Creepster',cursive; font-size:28px; color:#552200; letter-spacing:4px; opacity:0; transition:opacity 1s 1.2s; }
+#gameOver.active #goScore { opacity:1; }
+#restartBtn {
+  margin-top:10px; padding:12px 50px;
+  font-family:'Creepster',cursive; font-size:20px; letter-spacing:4px;
+  color:#fff; background:transparent; border:2px solid #770000;
+  cursor:pointer; transition:all .3s; opacity:0; transition:opacity 1s 1.5s, background .3s, box-shadow .3s;
+  pointer-events:all;
+}
+#gameOver.active #restartBtn { opacity:1; }
+#restartBtn:hover { background:#880000; box-shadow:0 0 20px #ff0000; }
+
+/* ── WIN SCREEN ── */
+#winScreen {
+  position:fixed; inset:0; z-index:200; pointer-events:none;
+  background:rgba(0,0,0,0); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:14px;
+  transition:background 2s;
+}
+#winScreen.active { pointer-events:all; background:rgba(0,0,0,0.95); }
+#winTitle {
+  font-family:'UnifrakturMaguntia',cursive; font-size:80px;
+  color:#886600; text-shadow:0 0 30px #ffcc00; opacity:0; transition:opacity 1.5s .5s;
+}
+#winScreen.active #winTitle { opacity:1; }
+#winMsg { color:#554422; font-size:13px; letter-spacing:3px; line-height:2; text-align:center; max-width:480px; opacity:0; transition:opacity 1s 1.5s; }
+#winScreen.active #winMsg { opacity:1; }
+
+/* LEVEL TRANSITION */
+#levelTransition {
+  position:fixed; inset:0; z-index:80; pointer-events:none;
+  background:#000; opacity:0; transition:opacity .6s;
+  display:flex; align-items:center; justify-content:center;
+}
+#levelTransition.show { opacity:1; }
+#ltText {
+  font-family:'UnifrakturMaguntia',cursive; font-size:60px;
+  color:#880000; letter-spacing:6px; text-shadow:0 0 30px #ff0000;
+}
+
+/* BOSS HEALTH */
+#bossBar {
+  position:absolute; bottom:80px; left:50%; transform:translateX(-50%);
+  width:360px; text-align:center; display:none;
+}
+#bossName {
+  font-family:'Creepster',cursive; font-size:20px;
+  color:#cc0000; letter-spacing:4px; margin-bottom:6px;
+  text-shadow:0 0 10px #ff0000;
+  animation:titleFlicker 3s infinite;
+}
+#bossTrack {
+  height:10px; background:#0f0000; border:1px solid #440000;
+}
+#bossFill {
+  height:100%; background:linear-gradient(90deg,#440000,#cc0000,#ff4400);
+  transition:width .3s;
+}
+
+/* FLASH */
+#flash {
+  position:fixed; inset:0; pointer-events:none; z-index:60;
+  background:#fff; opacity:0; transition:opacity .05s;
+}
+
+@keyframes shake {
+  0%,100%{transform:translate(0)} 20%{transform:translate(-6px,3px)} 40%{transform:translate(6px,-3px)} 60%{transform:translate(-3px,6px)} 80%{transform:translate(3px,-4px)}
+}
+.shaking { animation:shake .3s ease; }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="grain"></div>
+<canvas id="gameCanvas"></canvas>
+<div id="bloodOverlay"></div>
+<div id="flash"></div>
+
+<!-- ══════════ START SCREEN ══════════ -->
+<div id="startScreen">
+  <div id="startBg"></div>
+  <div id="startContent">
+    <div id="mainTitle">Shadows</div>
+    <div id="subTitle">BLACKWOOD MANOR — A HORROR EXPERIENCE</div>
+
+    <div id="storyReel">
+      Viky &amp; Mary entered Blackwood Manor on a dare.<br>
+      The doors locked behind them. The lights died.<br>
+      Something ancient stirs in the dark — hungry, patient.<br>
+      <em style="color:#330000">Find the 3 ritual seals. Escape before midnight.</em>
+    </div>
+
+    <div class="char-row">
+      <div class="char-card-start" id="vikyCard">
+        <div class="cc-avatar">V</div>
+        <div class="cc-name">VIKY</div>
+        <div class="cc-desc">THE BRAVE ONE<br>Higher stamina<br>Can sprint longer</div>
+      </div>
+      <div class="char-card-start" id="maryCard">
+        <div class="cc-avatar">M</div>
+        <div class="cc-name">MARY</div>
+        <div class="cc-desc">THE CLEVER ONE<br>Spots secrets<br>Slower sanity loss</div>
+      </div>
+    </div>
+
+    <!-- GOOGLE OAUTH -->
+    <div id="oauthSection">
+      <div id="userGreeting">Welcome back, <span id="userName"></span> 👁</div>
+      <div id="googleSignInWrapper">
+        <p>SIGN IN TO SAVE YOUR SCORE</p>
+        <button id="gSignInBtn" onclick="handleGoogleSignIn()">
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <path fill="none" d="M0 0h48v48H0z"/>
+          </svg>
+          Continue with Google
+        </button>
+        <button id="skipBtn" onclick="skipLogin()">Play as Guest</button>
+      </div>
+    </div>
+
+    <button id="startBtn" onclick="startGame()">ENTER THE DARK</button>
+  </div>
+</div>
+
+<!-- ══════════ UI HUD ══════════ -->
+<div id="ui">
+  <div id="topHud">
+    <!-- LEFT: Viky & Mary stats -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="stat-block">
+        <div class="char-portrait">
+          <div class="portrait-icon" id="vikyIcon">V</div>
+          <div class="portrait-name" id="vikyName">VIKY</div>
+        </div>
+        <div class="stat-label">HEALTH</div>
+        <div class="stat-bar"><div class="stat-fill" id="vikyFill" style="width:100%"></div></div>
+      </div>
+      <div class="stat-block">
+        <div class="char-portrait">
+          <div class="portrait-icon" id="maryIcon">M</div>
+          <div class="portrait-name" id="maryName">MARY</div>
+        </div>
+        <div class="stat-label">HEALTH</div>
+        <div class="stat-bar"><div class="stat-fill" id="maryFill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div id="centerHud">
+      <div id="levelDisplay">BLACKWOOD MANOR</div>
+      <div id="scoreDisplay">0</div>
+      <div id="waveDisplay">WAVE 1</div>
+      <div style="margin-top:6px;">
+        <div class="stat-label" style="margin-bottom:4px;">SANITY</div>
+        <div class="stat-bar" style="width:180px;margin:0 auto"><div class="stat-fill" id="sanityFill" style="width:100%"></div></div>
+      </div>
+      <div style="margin-top:4px;">
+        <div class="stat-label" style="margin-bottom:4px;">STAMINA</div>
+        <div class="stat-bar" style="width:180px;margin:0 auto"><div class="stat-fill" id="staminaFill" style="width:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div id="rightHud">
+      <div id="weaponDisplay">🕯 TORCH</div>
+      <div id="ammoDisplay">SEALS: 0 / 3</div>
+      <div id="inventoryBar">
+        <div class="inv-slot" id="slot0" title="Empty"></div>
+        <div class="inv-slot" id="slot1" title="Empty"></div>
+        <div class="inv-slot" id="slot2" title="Empty"></div>
+        <div class="inv-slot" id="slot3" title="Empty"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OBJECTIVE -->
+  <div id="objective">
+    <div id="objectiveTitle">▸ OBJECTIVE</div>
+    <div class="obj-item" id="obj0"><div class="obj-dot" id="dot0"></div><span id="objText0">Find 3 Ritual Seals</span></div>
+    <div class="obj-item" id="obj1"><div class="obj-dot" id="dot1"></div><span id="objText1">Survive the night</span></div>
+    <div class="obj-item" id="obj2" style="display:none"><div class="obj-dot" id="d
