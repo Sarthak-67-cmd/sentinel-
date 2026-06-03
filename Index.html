@@ -249,4 +249,354 @@ footer{padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space
           <div class="abcde-row"><div class="abcde-letter">B</div><div><div class="abcde-term">Border</div><div class="abcde-desc">Ragged, notched, blurred, or irregular edges</div></div></div>
           <div class="abcde-row"><div class="abcde-letter">C</div><div><div class="abcde-term">Color</div><div class="abcde-desc">Multiple shades: brown, black, red, white, blue</div></div></div>
           <div class="abcde-row"><div class="abcde-letter">D</div><div><div class="abcde-term">Diameter</div><div class="abcde-desc">Larger than 6mm (pencil eraser); melanomas can be smaller</div></div></div>
-          <div class="abcde-row" style="border-bottom:none"><div class="abcde-letter">E</div><div><div class="abcde-term">Evolving</div><div class="abcde-desc">Any change in size, shape, color, or new symptoms
+          <div class="abcde-row" style="border-bottom:none"><div class="abcde-letter">E</div><div><div class="abcde-term">Evolving</div><div class="abcde-desc">Any change in size, shape, color, or new symptoms like bleeding</div></div></div>
+        </div>
+      </div>
+      <div class="analysis-footer">
+        <div class="analysis-disc">⚕ Visual AI analysis is for educational awareness only and cannot diagnose cancer. A qualified dermatologist must evaluate any concerning lesion. If you notice ABCDE warning signs, consult a physician promptly.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CHAT PANEL ══════════ -->
+<div class="panel" id="panel-chat">
+  <div class="chat-layout">
+    <div class="chat-info">
+      <div class="eyebrow">AI Consultation</div>
+      <h2>Ask anything about<br><em>early detection</em></h2>
+      <p>Sentinel understands symptoms, risk factors, screening schedules, and what warning signs to never ignore. Ask in plain language — get clinically grounded answers.</p>
+      <div class="chips">
+        <button class="chip" onclick="sendQuick('Earliest signs of breast cancer')">Breast Cancer</button>
+        <button class="chip" onclick="sendQuick('Lung cancer warning signs')">Lung Cancer</button>
+        <button class="chip" onclick="sendQuick('Colorectal cancer screening')">Colorectal</button>
+        <button class="chip" onclick="sendQuick('Prostate cancer symptoms')">Prostate</button>
+        <button class="chip" onclick="sendQuick('Ovarian cancer signs')">Ovarian</button>
+        <button class="chip" onclick="sendQuick('Lifestyle factors that increase cancer risk')">Risk Factors</button>
+        <button class="chip" onclick="sendQuick('Cancer screenings at age 50')">Screenings at 50</button>
+        <button class="chip" onclick="sendQuick('Red flag symptoms never to ignore')">Red Flags</button>
+        <button class="chip" onclick="sendQuick('How skin cancer is detected early')">Skin Cancer</button>
+        <button class="chip" onclick="sendQuick('Blood tests that indicate cancer')">Blood Tests</button>
+      </div>
+      <div class="info-stats">
+        <div><div class="stat-num">90%</div><div class="stat-lbl">Survival if caught early</div></div>
+        <div><div class="stat-num">200+</div><div class="stat-lbl">Cancer types covered</div></div>
+        <div><div class="stat-num">24/7</div><div class="stat-lbl">Available</div></div>
+      </div>
+    </div>
+
+    <div class="chat-panel">
+      <div class="chat-hdr">
+        <div class="chat-dot"></div>
+        <span class="chat-ttl">Sentinel AI — Clinical Intelligence</span>
+        <span class="chat-mdl">Claude Opus 4.6</span>
+      </div>
+      <div class="chat-msgs" id="chatMsgs">
+        <div class="msg-bot-wrap">
+          <div class="msg-role">Sentinel AI</div>
+          <div class="msg-bot" style="opacity:1">Hello. I'm Sentinel, your early cancer detection assistant powered by Claude Opus 4.6. I can explain symptoms, risk factors, screening schedules, and help you know when to seek medical attention.<br><br><strong>Note:</strong> I provide information only — always consult a physician for diagnosis or treatment.</div>
+        </div>
+      </div>
+      <div class="quick-row" id="quickRow">
+        <button class="quick-chip" onclick="sendQuick('What screenings should I get at 40?')">Screenings at 40</button>
+        <button class="quick-chip" onclick="sendQuick('What are the most common cancer warning signs?')">Common warning signs</button>
+        <button class="quick-chip" onclick="sendQuick('How does diet affect cancer risk?')">Diet and cancer</button>
+      </div>
+      <div class="chat-input-area">
+        <div class="input-row">
+          <textarea id="chatInput" placeholder="Ask about symptoms, screenings, risk factors…" rows="2" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendChat()">Send →</button>
+        </div>
+        <div class="chat-disc">⚕ For informational purposes only. Not a substitute for professional medical advice.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CHECKLIST PANEL ══════════ -->
+<div class="panel" id="panel-checklist">
+  <div class="check-layout">
+    <div class="check-left">
+      <div class="eyebrow">Self-Assessment</div>
+      <h2>Warning signs<br>not to ignore</h2>
+      <div id="symptomList">
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Unexplained weight loss</div><div class="sym-desc">Losing 10+ lbs without trying — many cancer types</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Persistent fatigue</div><div class="sym-desc">Exhaustion not relieved by rest — leukemia, colon, stomach</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Unusual bleeding or discharge</div><div class="sym-desc">Blood where it shouldn't be — cervical, colorectal, bladder</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">New lump or thickening</div><div class="sym-desc">Anywhere on the body — breast, testicular, lymphoma</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Indigestion or swallowing difficulty</div><div class="sym-desc">Persistent issues — esophageal, stomach, throat</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Skin changes</div><div class="sym-desc">Yellowing, darkening, new moles, sores that won't heal</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Persistent cough or hoarseness</div><div class="sym-desc">Lasting 3+ weeks — lung, throat, laryngeal cancers</div></div></div>
+        <div class="sym-item" onclick="toggleSym(this)"><div class="sym-check"></div><div><div class="sym-name">Bowel or bladder changes</div><div class="sym-desc">Persistent habit changes — colorectal, bladder, prostate</div></div></div>
+      </div>
+    </div>
+    <div class="check-right">
+      <div class="eyebrow">Risk Indicator</div>
+      <h2>Your symptom<br>profile</h2>
+      <div class="risk-meter">
+        <div class="risk-lbl">Symptom Load Indicator</div>
+        <div class="risk-track"><div class="risk-fill" id="riskFill" style="width:0%"></div></div>
+        <div class="risk-score" id="riskScore">0 / 8</div>
+        <div class="risk-note" id="riskNote">Select any symptoms you are experiencing. Not a diagnosis — helps focus your AI conversation.</div>
+      </div>
+      <button class="ask-ai-btn" onclick="askAboutSymptoms()">Discuss My Symptoms with AI →</button>
+      <div class="screen-table">
+        <div class="screen-hdr">Recommended Screenings by Age</div>
+        <div class="screen-row"><div class="screen-age">20–39</div><div class="screen-info">Skin self-exams, breast self-exams, cervical PAP, STI testing</div></div>
+        <div class="screen-row"><div class="screen-age">40–49</div><div class="screen-info">Annual mammogram (women), colorectal screening begins, discuss PSA (men)</div></div>
+        <div class="screen-row"><div class="screen-age">50–64</div><div class="screen-info">Colonoscopy every 10 yrs, low-dose CT (smokers), mammogram, PSA discussion</div></div>
+        <div class="screen-row"><div class="screen-age">65+</div><div class="screen-info">Continue prior screenings, lung CT, discuss with physician</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Sentinel</div>
+  <p class="footer-note">Sentinel is an informational tool powered by Claude Opus 4.6. It does not provide medical diagnoses or professional advice. Always consult a licensed healthcare professional.</p>
+  <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">About</a></div>
+</footer>
+
+<script>
+const CHAT_SYS = `You are Sentinel, an early cancer detection intelligence assistant built on Claude Opus 4.6. Educate users about cancer warning signs, risk factors, and screening recommendations.
+- Be compassionate, clear, and clinically grounded
+- Always recommend consulting a physician for concerning symptoms
+- Never diagnose — only inform and guide toward medical care
+- Keep responses to 3-4 paragraphs max
+- Always end with a concrete action recommendation`;
+
+const VISION_SYS = `You are Sentinel Visual, a medical education AI analyzing skin images using the ABCDE melanoma framework.
+RULES: You CANNOT diagnose. Always recommend professional evaluation.
+Format your response as: 1) What you observe 2) ABCDE Assessment 3) Notable features 4) Recommendation (urgency to see dermatologist).
+State this is educational only, not a diagnosis.`;
+
+// ── TAB SWITCHING ──
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── CAMERA ──
+let mediaStream = null, facingMode = 'environment', capturedB64 = null, analyzing = false;
+
+async function startCamera() {
+  try {
+    if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width:{ideal:1280}, height:{ideal:720} } });
+    const v = document.getElementById('videoEl');
+    v.srcObject = mediaStream;
+    v.style.display = 'block';
+    document.getElementById('snapshotPreview').style.display = 'none';
+    document.getElementById('camPlaceholder').style.display = 'none';
+    document.getElementById('scanRing').classList.add('on');
+    document.getElementById('captureBtn').disabled = false;
+    document.getElementById('flipBtn').disabled = false;
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('stopBtn').style.display = '';
+    document.getElementById('retakeBtn').style.display = 'none';
+    document.getElementById('snapControls').style.display = 'none';
+    capturedB64 = null;
+  } catch(e) {
+    alert('Camera access denied or unavailable. Please upload an image instead.\n\n' + e.message);
+  }
+}
+
+function stopCamera() {
+  if (mediaStream) { mediaStream.getTracks().forEach(t => t.stop()); mediaStream = null; }
+  document.getElementById('videoEl').style.display = 'none';
+  document.getElementById('scanRing').classList.remove('on');
+  document.getElementById('captureBtn').disabled = true;
+  document.getElementById('flipBtn').disabled = true;
+  document.getElementById('startBtn').style.display = '';
+  document.getElementById('stopBtn').style.display = 'none';
+  if (!capturedB64) document.getElementById('camPlaceholder').style.display = 'flex';
+}
+
+async function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  await startCamera();
+}
+
+function capturePhoto() {
+  const v = document.getElementById('videoEl'), c = document.getElementById('canvasEl');
+  c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
+  c.getContext('2d').drawImage(v, 0, 0);
+  const dataUrl = c.toDataURL('image/jpeg', 0.85);
+  capturedB64 = dataUrl.split(',')[1];
+  const prev = document.getElementById('snapshotPreview');
+  prev.src = dataUrl; prev.style.display = 'block';
+  document.getElementById('videoEl').style.display = 'none';
+  document.getElementById('scanRing').classList.remove('on');
+  document.getElementById('snapControls').style.display = 'flex';
+  document.getElementById('captureBtn').style.display = 'none';
+  document.getElementById('retakeBtn').style.display = '';
+  stopCamera();
+}
+
+function retake() {
+  capturedB64 = null;
+  document.getElementById('snapshotPreview').style.display = 'none';
+  document.getElementById('snapControls').style.display = 'none';
+  document.getElementById('captureBtn').style.display = '';
+  document.getElementById('retakeBtn').style.display = 'none';
+  startCamera();
+}
+
+function handleFileUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => loadImage(ev.target.result);
+  r.readAsDataURL(file);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    const r = new FileReader();
+    r.onload = ev => loadImage(ev.target.result);
+    r.readAsDataURL(file);
+  }
+}
+
+function loadImage(dataUrl) {
+  capturedB64 = dataUrl.split(',')[1];
+  const prev = document.getElementById('snapshotPreview');
+  prev.src = dataUrl; prev.style.display = 'block';
+  document.getElementById('camPlaceholder').style.display = 'none';
+  document.getElementById('snapControls').style.display = 'flex';
+  document.getElementById('retakeBtn').style.display = '';
+  stopCamera();
+}
+
+async function analyzeImage() {
+  if (!capturedB64 || analyzing) return;
+  analyzing = true;
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true; btn.textContent = '⟳ Analyzing…';
+  const body = document.getElementById('analysisBody');
+  document.getElementById('analysisEmpty').style.display = 'none';
+  const typing = document.createElement('div');
+  typing.className = 'typing'; typing.id = 'analysisTyping';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  body.prepend(typing);
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6', max_tokens: 1000, system: VISION_SYS,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: capturedB64 } },
+          { type: 'text', text: 'Analyze this skin image using the ABCDE melanoma framework. What do you observe and should I seek medical evaluation?' }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    typing.remove();
+    const text = data.content?.[0]?.text || 'Unable to process. Please try again.';
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `<img class="result-thumb" src="data:image/jpeg;base64,${capturedB64}" alt="Analyzed"><div class="result-ts">Analysis · ${new Date().toLocaleTimeString()}</div><div class="result-text">${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>`;
+    body.prepend(card);
+  } catch(e) {
+    typing.remove();
+    const err = document.createElement('div');
+    err.style.cssText = 'font-family:monospace;font-size:.7rem;color:#e74c3c;padding:1rem;border-left:2px solid #c0392b;';
+    err.textContent = 'Connection error. Please check your network and try again.';
+    body.prepend(err);
+  }
+  analyzing = false; btn.disabled = false; btn.textContent = '🔬 Analyze with AI';
+}
+
+// ── CHAT ──
+let chatHistory = [], chatLoading = false;
+
+function addMsg(role, text) {
+  const msgs = document.getElementById('chatMsgs');
+  const wrap = document.createElement('div');
+  wrap.className = role === 'user' ? 'msg-user-wrap' : 'msg-bot-wrap';
+  const roleEl = document.createElement('div');
+  roleEl.className = 'msg-role';
+  roleEl.textContent = role === 'user' ? 'You' : 'Sentinel AI';
+  const bubble = document.createElement('div');
+  bubble.className = role === 'user' ? 'msg-user' : 'msg-bot';
+  bubble.innerHTML = text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  wrap.appendChild(roleEl); wrap.appendChild(bubble);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTypingChat() {
+  const msgs = document.getElementById('chatMsgs');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-bot-wrap'; wrap.id = 'chatTyping';
+  wrap.innerHTML = '<div class="msg-role">Sentinel AI</div><div class="msg-bot" style="opacity:1"><div class="typing"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput'), btn = document.getElementById('sendBtn');
+  const text = input.value.trim(); if (!text || chatLoading) return;
+  document.getElementById('quickRow').style.display = 'none';
+  chatLoading = true; btn.disabled = true; input.value = '';
+  addMsg('user', text);
+  chatHistory.push({ role: 'user', content: text });
+  showTypingChat();
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 1000, system: CHAT_SYS, messages: chatHistory })
+    });
+    const data = await res.json();
+    document.getElementById('chatTyping')?.remove();
+    const reply = data.content?.[0]?.text || 'I encountered an issue. Please try again.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    addMsg('assistant', reply);
+  } catch(e) {
+    document.getElementById('chatTyping')?.remove();
+    addMsg('assistant', 'Connection error. Please try again.');
+  }
+  chatLoading = false; btn.disabled = false; input.focus();
+}
+
+function sendQuick(text) {
+  switchTab('chat');
+  setTimeout(() => { document.getElementById('chatInput').value = text; sendChat(); }, 80);
+}
+
+// ── CHECKLIST ──
+function toggleSym(el) {
+  el.classList.toggle('checked');
+  const check = el.querySelector('.sym-check');
+  check.textContent = el.classList.contains('checked') ? '✓' : '';
+  updateRisk();
+}
+
+function updateRisk() {
+  const items = document.querySelectorAll('.sym-item');
+  let count = 0; items.forEach(i => { if (i.classList.contains('checked')) count++; });
+  const pct = (count / 8) * 100;
+  const fill = document.getElementById('riskFill');
+  fill.style.width = pct + '%';
+  fill.style.background = count === 0 ? '#1a6b6b' : count <= 2 ? '#b8962e' : count <= 4 ? '#e07b39' : '#c0392b';
+  document.getElementById('riskScore').textContent = count + ' / 8';
+  const note = document.getElementById('riskNote');
+  if (count === 0) note.textContent = 'Select any symptoms you are experiencing. Not a diagnosis — helps focus your AI conversation.';
+  else if (count <= 2) note.textContent = count + ' symptom(s) selected. Consider discussing at your next doctor visit.';
+  else if (count <= 4) note.textContent = count + ' symptoms selected. Schedule a medical appointment to discuss these concerns.';
+  else note.textContent = count + ' symptoms selected. Please seek medical attention promptly.';
+}
+
+function askAboutSymptoms() {
+  const items = document.querySelectorAll('.sym-item.checked');
+  if (items.length === 0) { sendQuick('What general cancer warning signs should everyone watch for?'); return; }
+  const names = []; items.forEach(i => names.push(i.querySelector('.sym-name').textContent));
+  sendQuick('I am experiencing: ' + names.join(', ') + '. What should I know about these in the context of early cancer detection, and when should I see a doctor?');
+}
+</script>
+</body>
+</html>
